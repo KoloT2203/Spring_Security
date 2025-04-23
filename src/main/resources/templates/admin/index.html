@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Users</title>
+</head>
+<body>
+    <div th:each="user : ${users}">
+        <a th:href="@{/admin/show(id=${user.getId()})}" th:text="${user.getName()} + ' '
+        + ${user.getLastName()} + ', ' + ${user.getAge()}">user</a>
+    </div>
+    <br>
+    <a th:href="@{/admin/new}">new</a>
+
+    <div>
+        <a th:href="@{/admin}" class="btn btn-primary">
+            <i class="fas fa-cog"></i> Перейти к userinfo
+        </a>
+    </div>
+
+</body>
+</html>
