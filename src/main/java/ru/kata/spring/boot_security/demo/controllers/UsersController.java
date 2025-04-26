@@ -5,10 +5,13 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+import ru.kata.spring.boot_security.demo.models.Role;
 import ru.kata.spring.boot_security.demo.models.User;
 import ru.kata.spring.boot_security.demo.service.UserServiceInterface;
 
 import java.security.Principal;
+import java.util.HashSet;
+import java.util.List;
 
 @Controller
 @RequestMapping("/admin")
@@ -34,12 +37,14 @@ public class UsersController {
     }
 
     @GetMapping("/new")
-    public String newUser(@ModelAttribute("user") User user){
+    public String newUser(Model model) {
+        model.addAttribute("user", new User());
+        model.addAttribute("roles", userService.getRoles());
         return "admin/new";
     }
 
     @PostMapping("/new")
-    public String create(@ModelAttribute("user") User user) {
+    public String create(@ModelAttribute("user") User user, Model model) {
         userService.createUser(user);
         return "redirect:/admin/index";
     }
@@ -47,12 +52,13 @@ public class UsersController {
     @GetMapping("/edit")
     public String edit(@RequestParam("id") Integer id, Model model) {
         model.addAttribute("user", userService.getUserById(id));
+        model.addAttribute("roles", userService.getRoles());
         return "admin/edit";
     }
 
     @PatchMapping("/edit")
-    public String update(@ModelAttribute("user") User user, @RequestParam("id") Integer id){
-
+    public String update(@ModelAttribute("user") User user,
+                         @RequestParam("id") Integer id){
         userService.updateUser(id, user);
         return "redirect:/admin/index";
     }
