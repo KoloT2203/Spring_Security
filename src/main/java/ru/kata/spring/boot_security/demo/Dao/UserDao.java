@@ -1,6 +1,10 @@
 package ru.kata.spring.boot_security.demo.Dao;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Repository;
 import ru.kata.spring.boot_security.demo.models.Role;
@@ -46,7 +50,15 @@ public class UserDao implements UserDaoInterface {
 
     @Override
     public void update(Integer id, User updateUser) {
+
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        UserDetails userDetails = (UserDetails) auth.getPrincipal();
+        String check = "";
+
         User user = em.find(User.class, id);
+        if (user.getUsername().equals(userDetails.getUsername())) {
+            check = "admin";
+        }
         user.setUsername(updateUser.getUsername());
 
         String pass = updateUser.getPassword();
@@ -67,6 +79,15 @@ public class UserDao implements UserDaoInterface {
         user.setName(updateUser.getName());
         user.setLastName(updateUser.getLastName());
         em.merge(user);
+        if (check.equals("admin")) {
+            UserDetails updatedUser = findByUsername(updateUser.getUsername());
+            Authentication newAuth = new UsernamePasswordAuthenticationToken(
+                    updatedUser,
+                    updatedUser.getPassword(),
+                    updatedUser.getAuthorities()
+            );
+            SecurityContextHolder.getContext().setAuthentication(newAuth);
+        }
     }
 
     @Override
